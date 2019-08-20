@@ -74,12 +74,22 @@ int main(){
     printf("Digite o rank que deseja imprimir: \n");
     scanf("%i",&l);
     limpar_buffer();
-    func2(&lista[l]);
-    
+    for (int j = 0; j < 5; ++j) {
+        if(lista[j].rank==1 && l==1){
+            func2(&lista[j]);
+        }else if(lista[j].rank == 2 && l==2){
+            func2(&lista[j]);
+        }else if(lista[j].rank == 3 && l==3){
+            func2(&lista[j]);
+        }else if(lista[j].rank == 4 && l==4){
+            func2(&lista[j]);
+        }else if(lista[j].rank == 5 && l==5){
+            func2(&lista[j]);
+        }
+    }
 
     free(lista);
 
-    
     return (0);
 }
 
