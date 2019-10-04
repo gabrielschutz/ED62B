@@ -1,0 +1,185 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct{
+    int chave;
+} Objeto;
+
+typedef struct NoArvore *PtrArvore;
+
+typedef struct NoArvore {
+    Objeto elemento;
+    PtrArvore left;
+    PtrArvore right;
+} NoArvore;
+
+int numeroNosArvore(PtrArvore *arvore){
+
+    if((*arvore)==NULL)
+        return 0;
+    else
+        return (numeroNosArvore(&(*arvore)->right)+numeroNosArvore(&(*arvore)->left)+1);
+
+}
+
+int alturaArvore(PtrArvore *arvore){
+    int taml;
+    int tamr;
+
+    if((*arvore)==NULL){
+        return -1;
+    }
+
+    else
+    {
+        taml = (alturaArvore(&(*arvore)->right)+1);
+        tamr = (alturaArvore(&(*arvore)->left)+1);
+        if (taml >= tamr){
+            return taml;
+        }else{
+            return tamr;
+        }
+    }
+
+
+}
+
+void iniciaArvore(PtrArvore *arvore){
+    *arvore = NULL;
+}
+
+bool estaVazia(PtrArvore *arvore){
+    return (*arvore == NULL);
+}
+
+void destroiArvore(PtrArvore *arvore);
+
+void preOrdem(PtrArvore *arvore){
+    if ((*arvore)==NULL)
+        return;
+    printf("%d ",(*arvore)->elemento.chave);
+    preOrdem(&(*arvore)->left);
+    preOrdem(&(*arvore)->right);
+}
+
+void posOrdem(PtrArvore *arvore){
+    if ((*arvore)==NULL)
+        return;
+    posOrdem(&(*arvore)->left);
+    posOrdem(&(*arvore)->right);
+    printf("%d ",(*arvore)->elemento.chave);
+}
+
+void EmOrdem(PtrArvore *arvore){
+    if ((*arvore)==NULL)
+        return;
+    EmOrdem(&(*arvore)->left);
+    printf("%d ",(*arvore)->elemento.chave);
+    EmOrdem(&(*arvore)->right);
+}
+
+bool insereItem(PtrArvore *arvore, Objeto x){
+
+    if(estaVazia(arvore)){
+        (*arvore) = malloc(sizeof(NoArvore));
+        (*arvore)->right = (*arvore)->left = NULL;
+        (*arvore)->elemento = x;
+        return true;
+    }
+
+    if((*arvore)->elemento.chave == x.chave)
+        return false;
+
+
+    if((*arvore)->elemento.chave > x.chave){
+        return (insereItem(&(*arvore)->left, x));
+    }else{
+        return (insereItem(&(*arvore)->right, x));
+    }
+
+
+}
+bool procuraItem(PtrArvore *arvore, int key){
+    if((*arvore)==NULL)
+        return false;
+
+    if((*arvore)->elemento.chave == key)
+        return true;
+
+    if(key < (*arvore)->elemento.chave)
+        procuraItem(&(*arvore)->left,key);
+    else
+        procuraItem(&(*arvore)->right,key);
+
+}
+
+
+
+bool removeItem(PtrArvore *arvore, int key);
+
+
+PtrArvore maximo(PtrArvore *arvore);
+
+
+PtrArvore maximoIterativo(PtrArvore *arvore);
+
+
+PtrArvore minimo(PtrArvore *arvore);
+
+
+PtrArvore minimoIterativo(PtrArvore *arvore);
+
+
+PtrArvore getMinAux(PtrArvore *arvore); //usado na remoção
+
+
+PtrArvore getMaxAux(PtrArvore *arvore); //usado na remoção
+
+
+
+int main() {
+
+    PtrArvore raiz;
+    iniciaArvore(&raiz);
+
+    Objeto x;
+
+    x.chave = 1;
+    insereItem(&raiz,x);
+    x.chave = 66;
+    insereItem(&raiz,x);
+    x.chave = 77;
+    insereItem(&raiz,x);
+    x.chave = 99;
+    insereItem(&raiz,x);
+    x.chave = 12;
+    insereItem(&raiz,x);
+
+
+
+    preOrdem(&raiz);
+    printf("\n");
+    posOrdem(&raiz);
+    printf("\n");
+    EmOrdem(&raiz);
+
+    printf("\n");
+
+    printf("%d",numeroNosArvore(&raiz));
+    printf("\n");
+    printf("%d",alturaArvore(&raiz));
+
+
+    x.chave = 3;
+    insereItem(&raiz,x);
+    x.chave = 5;
+    insereItem(&raiz,x);
+
+
+
+
+    printf("%d",alturaArvore(&raiz));
+
+    return 0;
+}
