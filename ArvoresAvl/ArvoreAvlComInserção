@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#define COUNT 10
+#define COUNT 10                //Para Printar
 
 typedef struct{
     int chave;
@@ -156,19 +156,24 @@ void rotacoes(PtrArvoreAvl *arvore){
     if(alturaArvore(&(*arvore)->left)>alturaArvore(&(*arvore)->right)){
         PtrArvoreAvl x = (*arvore)->left;
         if(alturaArvore(&(x->left))>= alturaArvore(&(x->right))){
-            printf("Rotacao Simples para a direita!\n");
+            printf("Rotacao Simples para a direita:");
+            printf("%i\n",((*arvore)->elemento.chave));
             rotacaoSimplesDireita(&(*arvore));
         }else{
-            printf("Rotacao Dupla para direita");
+            printf("Rotacao Dupla para direita:");
+            printf("%i\n",((*arvore)->elemento.chave));
             rotacaoDuplaDireita(&(*arvore));
         }
     }else{
         PtrArvoreAvl y = (*arvore)->right;
         if(alturaArvore(&(y->right))>alturaArvore(&(y->left))){
-            printf("Rotacao Simples para a esquerda\n");
+            printf("Rotacao Simples para a esquerda:");
+            printf("%i\n",((*arvore)->elemento.chave));
             rotacaoSimplesEsquerda(&(*arvore));
+
         }else{
-            printf("Rotacao Dupla para esquerda\n");
+            printf("Rotacao Dupla para esquerda:");
+            printf("%i\n",((*arvore)->elemento.chave));
             rotacaoDuplaEsquerda(&(*arvore));
         }
     }
@@ -327,8 +332,18 @@ int main() {
     insereItem(&raiz,x);
     x.chave = 12;
     insereItem(&raiz,x);
+    x.chave = 122;
+    insereItem(&raiz,x);
+    x.chave = 5;
+    insereItem(&raiz,x);
+    x.chave = 17;
+    insereItem(&raiz,x);
+    x.chave = 3;
+    insereItem(&raiz,x);
 
     PrintArvoreRec(&raiz,10);
+
+    printf("%i",(raiz)->altura);
 
     printf("%i\n",alturaArvore(&raiz));
 
