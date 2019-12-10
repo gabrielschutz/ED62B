@@ -1,0 +1,530 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+enum Coloracao{Branco, Cinza, Preto};
+
+
+typedef struct NoLista {
+    int chave;
+    struct NoLista *proximodafila;
+}NoLista;
+
+
+typedef struct vertice {
+    int data;
+    int d;
+    int f;
+    char nome[50];
+    enum Coloracao cor;
+    NoLista *comeco;
+}vertice;
+
+int tempo;
+
+typedef struct Grafo{
+    int NumeroDeVertices;
+    vertice array[];
+}Grafo;
+
+vertice* NovoNo(int data) {
+    vertice *z;
+    z = malloc(sizeof(vertice));
+    z->data = data;
+    z->d = 0;
+    z->f = 0;
+    strcpy((z->nome), "");
+    z->comeco = NULL;
+    z->cor = Branco;
+
+    return z;
+}
+
+NoLista* NovoVerticeLista(int item_index) {
+    NoLista *z;
+    z = malloc(sizeof(NoLista));
+    z->chave = item_index;
+    z->proximodafila = NULL;
+
+    return z;
+}
+
+
+Grafo* Novo_Grafo(int NumeroDeVertices) {
+
+    Grafo *g = malloc(sizeof(Grafo) + (NumeroDeVertices*sizeof(vertice)));
+    g->NumeroDeVertices = NumeroDeVertices;
+
+
+    int i;
+    for(i=0; i<NumeroDeVertices; i++) {
+        vertice *z = NovoNo(-1);
+        g->array[i] = *z;
+    }
+
+    return g;
+}
+
+void AdicionarVerticeNoGrafo(Grafo *g, int data) {
+
+    vertice *z = NovoNo(data);
+
+    int i;
+    for(i=0; i<g->NumeroDeVertices; i++) {
+        if (g->array[i].data < 0) {
+            g->array[i] = *z;
+            break;
+        }
+    }
+}
+
+int DefineValorDoVertice(Grafo *g, int data) {
+    int i;
+    for(i=0; i<g->NumeroDeVertices; i++) {
+        if(g->array[i].data == data)
+            return 1;
+    }
+    return 0;
+}
+
+void AdicionarAresta(Grafo *g, int source, int dest) {
+
+    if(!DefineValorDoVertice(g, source)) {
+        AdicionarVerticeNoGrafo(g, source);
+    }
+    if(!DefineValorDoVertice(g, dest)) {
+        AdicionarVerticeNoGrafo(g, dest);
+    }
+
+    int i,j;
+
+    for(i=0; i<g->NumeroDeVertices; i++) {
+        if(g->array[i].data == source) {
+
+            int ChaveDeDestino;
+
+            for(j=0; j<g->NumeroDeVertices; j++) {
+                if(g->array[j].data == dest) { \
+                    ChaveDeDestino = j;
+                    break;
+                }
+            }
+
+            NoLista *n = NovoVerticeLista(ChaveDeDestino); \
+            if (g->array[i].comeco == NULL) {
+                g->array[i].comeco = n;
+            }
+            else {
+                NoLista *temp;
+                temp = g->array[i].comeco;
+
+
+                while(temp->proximodafila != NULL) {
+                    temp = temp->proximodafila;
+                }
+                temp->proximodafila = n;
+            }
+            break;
+        }
+    }
+}
+
+
+void PrintarGrafoLista(Grafo *g) {
+    int i;
+    for(i=0; i<g->NumeroDeVertices; i++) {
+        NoLista *temp;
+        temp = g->array[i].comeco;
+        printf("%d\t",g->array[i].data);
+        while(temp != NULL) {
+            printf("%d\t",g->array[temp->chave].data);
+            temp = temp->proximodafila;
+        }
+        printf("\n");
+    }
+}
+
+void PrintarGrafoMatriz(Grafo *g) {
+    int i;
+
+    for(i=0; i<g->NumeroDeVertices; i++) {
+        NoLista *temp;
+        temp = g->array[i].comeco;
+        printf("\t%d",g->array[i].data);
+
+    }
+    printf("\n");
+
+    for(i=0; i<g->NumeroDeVertices; i++) {
+        NoLista *temp;
+        temp = g->array[i].comeco;
+        printf("%d\t",g->array[i].data);
+        int contador = 0;
+
+        while (contador < g->NumeroDeVertices){
+            if(temp == NULL){
+                for (int j = 0; j < (g->NumeroDeVertices-contador) ; ++j) {
+                    printf("0\t");
+                }
+                break;
+            }else{
+                printf("1\t");
+            }
+            temp = temp->proximodafila;
+            contador++;
+        }
+        printf("\n");
+    }
+}
+
+typedef struct NoFila {
+    vertice *n;
+    struct NoFila *proximodafila;
+}NoFila;
+
+struct FILA{
+    int tamanhoFila;
+    NoFila *proximodafila;
+    NoFila *anteriordafila;
+};
+typedef struct FILA FILA;
+
+int FilaEstaVazia(FILA *q)
+{
+    return !(q->tamanhoFila);
+}
+
+void enfilera(FILA *q, vertice *n)
+{
+    NoFila *NovoNoFila;
+    NovoNoFila = malloc(sizeof(NoFila));
+    NovoNoFila->n = n;
+    NovoNoFila->proximodafila = NULL;
+    if(!FilaEstaVazia(q))
+    {
+        q->anteriordafila->proximodafila = NovoNoFila;
+        q->anteriordafila = NovoNoFila;
+    }
+    else
+    {
+        q->proximodafila = q->anteriordafila = NovoNoFila;
+    }
+    q->tamanhoFila++;
+}
+
+NoFila* densenfilera(FILA *q)
+{
+    NoFila *tmp;
+    tmp = q->proximodafila;
+    q->proximodafila = q->proximodafila->proximodafila;
+    q->tamanhoFila--;
+    return tmp;
+}
+
+FILA* inicia_fila()
+{
+    FILA *q;
+    q = malloc(sizeof(FILA));
+    q->tamanhoFila = 0;
+    q->proximodafila = NULL;
+    q->anteriordafila = NULL;
+    return q;
+}
+
+
+void bfs(Grafo *g,int verticenicial,FILE *arq) {
+
+    vertice s = g->array[verticenicial - 1];
+    int i;
+    for(i=0; i<g->NumeroDeVertices; i++) {
+        g->array[i].cor = Branco;
+        g->array[i].d = 999;
+    }
+
+    s.cor = Cinza;
+    s.d = 0;
+
+    FILA* q = inicia_fila();
+    enfilera(q, &s);
+
+    while(!FilaEstaVazia(q)) {
+
+        NoFila *u = densenfilera(q);
+        NoLista *temp;
+        temp = u->n->comeco;
+
+
+        while(temp != NULL) {
+            if (g->array[temp->chave].cor == Branco) {
+                g->array[temp->chave].cor = Cinza;
+                g->array[temp->chave].d = s.d + 1;
+                enfilera(q, &g->array[temp->chave]);
+            }
+            temp = temp->proximodafila;
+        }
+        u->n->cor = Preto;
+        fprintf(arq,"%d [d=%i]\n",u->n->data,u->n->d);
+    }
+
+
+    if (FilaEstaVazia(q)){
+        for (int j = 0; j < (g->NumeroDeVertices-1); ++j) {
+            if (g->array[j].d >=999){
+                fprintf(arq,"%d [d=%i]\n",g->array[j].data,g->array[j].d);
+            }
+        }
+    }
+
+}
+
+void dfs_visit(Grafo *g, vertice *i) {
+    tempo = tempo + 1;
+    i->cor = Cinza;
+    i->d = tempo;
+
+    NoLista *temp;
+    temp = i->comeco;
+    while(temp != NULL) {
+        if (g->array[temp->chave].cor == Branco) {
+            dfs_visit(g, &g->array[temp->chave]);
+        }
+        temp = temp->proximodafila;
+    }
+    i->cor = Preto;
+    tempo = tempo+1;
+    i->f = tempo;
+
+   // printf("%d [d=%i,f=%i]\n",i->data,i->d,i->f);
+}
+
+void dfs(Grafo *g,FILE *arq) {
+    int i;
+
+    for(i=0; i<g->NumeroDeVertices; i++) {
+        g->array[i].cor = Branco;
+    }
+
+    tempo = 0;
+
+    for(i=0; i<g->NumeroDeVertices; i++) {
+        if (g->array[i].cor == Branco) {
+            dfs_visit(g, &g->array[i]);
+        }
+    }
+
+    for (int j = 0; j <g->NumeroDeVertices ; ++j) {
+        fprintf(arq,"%d [d=%i,f=%i]\n",g->array[j].data,g->array[j].d,g->array[j].f);
+    }
+}
+
+int main(int argc, char *argv[]) {
+
+    FILE *arq1 = fopen(argv[1], "r");
+    FILE *arq2 = fopen(argv[2], "w+");
+
+    char c;
+    int num1 = 0, num2 = 0,maior = 0;
+
+
+    if (arq1 == NULL || arq2 == NULL)
+        printf("\nErro no Arquivo!!!\n");
+    else {
+        c = fgetc(arq1);
+        if (c == 'M') {
+            fseek(arq1, 3, SEEK_SET);
+            c = fgetc(arq1);
+            if (c == 'B') {
+                fseek(arq1, 8, SEEK_SET);
+                printf("Arestas: \n");
+                while (c != '\n'){
+                    if ((c != '(')&&(c != ',')&&(c != ')')){
+                        fseek(arq1, -1, SEEK_CUR);
+                        fscanf(arq1,"%i",&num1);
+                        c=fgetc(arq1);
+                        fscanf(arq1,"%i",&num2);
+
+                        if (maior<num1){
+                            maior=num1;
+                        }
+                        if (maior<num2){
+                            maior=num2;
+                        }
+
+                        printf("(%i,%i)\t",num1,num2);
+                    }
+                    c = fgetc(arq1);
+                }
+                printf("\nMaior numero de um vertice foi %i, quantidade de vertices sera de %i.\n",maior,maior);
+
+                Grafo *g = Novo_Grafo(maior);
+
+                fseek(arq1, 7, SEEK_SET);
+                c = fgetc(arq1);
+                while (c != '\n'){
+                    if ((c != '(')&&(c != ',')&&(c != ')')){
+                        fseek(arq1, -1, SEEK_CUR);
+                        fscanf(arq1,"%i",&num1);
+                        c=fgetc(arq1);
+                        fscanf(arq1,"%i",&num2);
+                        AdicionarAresta(g, num1, num2);
+                    }
+                    c = fgetc(arq1);
+                }
+                int vi=0;
+
+                fscanf(arq1,"%i",&vi);
+                printf("Vertice Inicial %i\n",vi);
+
+                printf("Representacao por matriz: \n");
+                PrintarGrafoMatriz(g);
+
+                bfs(g,vi,arq2);
+
+            }
+            if (c == 'D') {
+                fseek(arq1, 8, SEEK_SET);
+                printf("Arestas: \n");
+                while (c != '\n'){
+                    if ((c != '(')&&(c != ',')&&(c != ')')){
+                        fseek(arq1, -1, SEEK_CUR);
+                        fscanf(arq1,"%i",&num1);
+                        c=fgetc(arq1);
+                        fscanf(arq1,"%i",&num2);
+
+                        if (maior<num1){
+                            maior=num1;
+                        }
+                        if (maior<num2){
+                            maior=num2;
+                        }
+
+                        printf("(%i,%i)\t",num1,num2);
+                    }
+                    c = fgetc(arq1);
+                }
+                printf("\nMaior numero de um vertice foi %i, quantidade de vertices sera de %i.\n",maior,maior);
+
+                Grafo *g = Novo_Grafo(maior);
+
+                fseek(arq1, 7, SEEK_SET);
+                c = fgetc(arq1);
+                while (c != '\n'){
+                    if ((c != '(')&&(c != ',')&&(c != ')')){
+                        fseek(arq1, -1, SEEK_CUR);
+                        fscanf(arq1,"%i",&num1);
+                        c=fgetc(arq1);
+                        fscanf(arq1,"%i",&num2);
+                        AdicionarAresta(g, num1, num2);
+                    }
+                    c = fgetc(arq1);
+                }
+
+                printf("Representacao por matriz: \n");
+                PrintarGrafoMatriz(g);
+
+                dfs(g,arq2);
+            }
+
+        }
+        if (c == 'L') {
+            fseek(arq1, 3, SEEK_SET);
+            c = fgetc(arq1);
+            if (c == 'B') {
+                fseek(arq1, 8, SEEK_SET);
+                printf("Arestas: \n");
+                while (c != '\n'){
+                    if ((c != '(')&&(c != ',')&&(c != ')')){
+                        fseek(arq1, -1, SEEK_CUR);
+                        fscanf(arq1,"%i",&num1);
+                        c=fgetc(arq1);
+                        fscanf(arq1,"%i",&num2);
+
+                        if (maior<num1){
+                            maior=num1;
+                        }
+                        if (maior<num2){
+                            maior=num2;
+                        }
+
+                        printf("(%i,%i)\t",num1,num2);
+                    }
+                    c = fgetc(arq1);
+                }
+                printf("\nMaior numero de um vertice foi %i, quantidade de vertices sera de %i.\n",maior,maior);
+
+                Grafo *g = Novo_Grafo(maior);
+
+                fseek(arq1, 7, SEEK_SET);
+                c = fgetc(arq1);
+                while (c != '\n'){
+                    if ((c != '(')&&(c != ',')&&(c != ')')){
+                        fseek(arq1, -1, SEEK_CUR);
+                        fscanf(arq1,"%i",&num1);
+                        c=fgetc(arq1);
+                        fscanf(arq1,"%i",&num2);
+                        AdicionarAresta(g, num1, num2);
+                    }
+                    c = fgetc(arq1);
+                }
+                int vi=0;
+
+                fscanf(arq1,"%i",&vi);
+                printf("Vertice Inicial %i\n",vi);
+
+                printf("Representacao por Lista: \n");
+                PrintarGrafoLista(g);
+
+                bfs(g,vi,arq2);
+
+            }
+            if (c == 'D') {
+                fseek(arq1, 8, SEEK_SET);
+                printf("Arestas: \n");
+                while (c != '\n'){
+                    if ((c != '(')&&(c != ',')&&(c != ')')){
+                        fseek(arq1, -1, SEEK_CUR);
+                        fscanf(arq1,"%i",&num1);
+                        c=fgetc(arq1);
+                        fscanf(arq1,"%i",&num2);
+
+                        if (maior<num1){
+                            maior=num1;
+                        }
+                        if (maior<num2){
+                            maior=num2;
+                        }
+
+                        printf("(%i,%i)\t",num1,num2);
+                    }
+                    c = fgetc(arq1);
+                }
+                printf("\nMaior numero de um vertice foi %i, quantidade de vertices sera de %i.\n",maior,maior);
+
+                Grafo *g = Novo_Grafo(maior);
+
+                fseek(arq1, 7, SEEK_SET);
+                c = fgetc(arq1);
+                while (c != '\n'){
+                    if ((c != '(')&&(c != ',')&&(c != ')')){
+                        fseek(arq1, -1, SEEK_CUR);
+                        fscanf(arq1,"%i",&num1);
+                        c=fgetc(arq1);
+                        fscanf(arq1,"%i",&num2);
+                        AdicionarAresta(g, num1, num2);
+                    }
+                    c = fgetc(arq1);
+                }
+
+                printf("Representacao por Lista: \n");
+                PrintarGrafoLista(g);
+                dfs(g,arq2);
+            }
+
+        }
+    }
+    
+    fclose(arq1);
+    fclose(arq2);
+    
+    return 0;
+}
